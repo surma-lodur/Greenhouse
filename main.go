@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/MarcusWalz/sleepy"
 	_ "github.com/go-sql-driver/mysql"
@@ -35,7 +36,7 @@ func (item Measurement) Get(request *http.Request) (int, interface{}, http.Heade
 	items := []MeasurementData{}
 	for rows.Next() {
 		measurement := new(MeasurementData)
-		err = rows.Scan(&measurement.ID, &measurement.CreatedAt, &measurement.Lux, &measurement.Drewpoint, &measurement.Humidity, &measurement.Temp, &measurement.Bar, &measurement.Soil)
+		err = rows.Scan(&measurement.ID, &measurement.CreatedAt, &measurement.Lux, &measurement.Drewpoint, &measurement.Humidity, &measurement.Temp, &measurement.Soil, &measurement.Bar)
 		checkErr(err)
 		items = append(items, *measurement)
 	}
@@ -75,11 +76,15 @@ func (item Measurement) Post(request *http.Request) (int, interface{}, http.Head
 
 func main() {
 	initDB()
+	flag.Parse()
+	args := flag.Args()
 	item := new(Measurement)
 
 	api := sleepy.NewAPI()
 	api.AddResource(item, "/measurements")
-	api.Start(3000)
+	i, err := strconv.ParseInt(args[1], 10, 32)
+	checkErr(err)
+	api.Start(int(i))
 }
 
 func checkErr(err error) {
@@ -90,10 +95,9 @@ func checkErr(err error) {
 
 func initDB() {
 	flag.Parse()
-
 	args := flag.Args()
-	if len(args) < 1 {
-		fmt.Println("no DB Login defined!")
+	if len(args) < 2 {
+		fmt.Println("no DB Login and Port defined! \n\t user:password 8080")
 		os.Exit(1)
 	}
 	var err error
