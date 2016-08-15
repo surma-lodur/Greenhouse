@@ -10,11 +10,74 @@
     .sidebar {
         background-color: #000
     }
+    
+    .panel.lux,
+    .panel.drewpoint,
+    .panel.humidity,
+    .panel.temp,
+    .panel.soil,
+    .panel.bar {
+        border: none;
+    }
+    
+    .lux .panel-heading {
+        background-color: #e3a21a;
+        border: none;
+    }
+    
+    .panel.lux {
+        background-color: rgba(255, 196, 13, 0.1);
+    }
+    
+    .drewpoint .panel-heading {
+        background-color: #2b5797;
+        border: none;
+    }
+    
+    .panel.drewpoint {
+        background-color: rgba(45, 137, 239, 0.1);
+    }
+    
+    .humidity .panel-heading {
+        background-color: #00a300;
+        border: none;
+    }
+    
+    .panel.humidity {
+        background-color: rgba(153, 180, 51, 0.1);
+    }
+    
+    .temp .panel-heading {
+        background-color: #b91d47;
+        border: none;
+    }
+    
+    .panel.temp {
+        background-color: rgba(238, 17, 17, 0.1);
+    }
+    
+    .soil .panel-heading {
+        background-color: #7e3878;
+        border: none;
+    }
+    
+    .panel.soil {
+        background-color: rgba(159, 0, 167, 0.1);
+    }
+    
+    .bar .panel-heading {
+        background-color: #603cba;
+        border: none;
+    }
+    
+    .panel.bar {
+        background-color: rgba(126, 56, 120, 0.1);
+    }
 </style>
 <script>
     angular.module('apiService', ['ngResource']).factory('Measurement', ['$resource',
         function($resource) {
-            return $resource('http://localhost:6060/measurements', {}, {
+            return $resource('http://192.168.2.112:6060/measurements', {}, {
                 query: {
                     method: 'GET',
                     isArray: false
@@ -32,51 +95,63 @@
         $scope.measurementToChartData = function(query) {
             $scope.luxChart = {
                 series: 'Lux',
-                data: []
+                data: [
+                    []
+                ]
             };
             $scope.drewpointChart = {
                 series: 'Drewpoint',
-                data: []
+                data: [
+                    []
+                ]
             };
             $scope.humidityChart = {
                 series: 'Humidity',
-                data: []
+                data: [
+                    []
+                ]
             };
             $scope.tempChart = {
                 series: 'Temp',
-                data: []
+                data: [
+                    []
+                ]
             };
             $scope.soilChart = {
                 series: 'Soil',
-                data: []
+                data: [
+                    []
+                ]
             };
             $scope.barChart = {
                 series: 'Bar',
-                data: []
+                data: [
+                    []
+                ]
             };
 
             jQuery.each(query.measurements, function(index, measurement) {
-                $scope.luxChart.data.push({
+                $scope.luxChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.lux
                 });
-                $scope.drewpointChart.data.push({
+                $scope.drewpointChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.drewpoint
                 });
-                $scope.humidityChart.data.push({
+                $scope.humidityChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.humidity
                 });
-                $scope.tempChart.data.push({
+                $scope.tempChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.temp
                 });
-                $scope.soilChart.data.push({
+                $scope.soilChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.soil
                 });
-                $scope.barChart.data.push({
+                $scope.barChart.data[0].push({
                     x: measurement.created_at,
                     y: measurement.bar
                 });
@@ -90,10 +165,47 @@
             $scope.onClick = function(points, evt) {
                 console.log(points, evt);
             };
-            $scope.datasetOverride = [{
-                yAxisID: 'y-axis-1'
-            }, {
-                yAxisID: 'y-axis-2'
+            $scope.luxDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#e3a21a',
+                pointBackgroundColor: "#ffc40d",
+                pointBorderColor: "#e3a21a",
+                backgroundColor: "rgba(255,196,13, 0.4)"
+            }];
+            $scope.tempDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#b91d47',
+                pointBackgroundColor: "#ee1111",
+                pointBorderColor: "#b91d47",
+                backgroundColor: "rgba(238,17,17, 0.4)"
+            }];
+            $scope.drewpointDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#2b5797',
+                pointBorderColor: "#2b5797",
+                pointBackgroundColor: "#2d89ef",
+                backgroundColor: "rgba(45,137,239, 0.4)"
+            }];
+            $scope.soilDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#7e3878',
+                pointBorderColor: "#7e3878",
+                pointBackgroundColor: "rgb(159,0,167)",
+                backgroundColor: "rgba(159,0,167, 0.4)"
+            }];
+            $scope.humidityDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#00a300',
+                pointBorderColor: "#00a300",
+                pointBackgroundColor: "rgb(153,180,51)",
+                backgroundColor: "rgba(153,180,51, 0.4)"
+            }];
+            $scope.barDatasetOverride = [{
+                yAxisID: 'y-axis-1',
+                borderColor: '#603cba',
+                pointBorderColor: "#603cba",
+                pointBackgroundColor: "rgb(126,56,120)",
+                backgroundColor: "rgba(126,56,120, 0.4)"
             }];
             $scope.options = {
                 scales: {
@@ -110,11 +222,6 @@
                         type: 'linear',
                         display: true,
                         position: 'left'
-                    }, {
-                        id: 'y-axis-2',
-                        type: 'linear',
-                        display: true,
-                        position: 'right'
                     }]
                 }
             };
@@ -136,74 +243,78 @@
 
             <span ng-show="histogram">
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                <!-- series: ['Lux', 'Drewpoint', 'Humidity', 'Temp', 'Soil', 'Bar'],-->
-                <div class="panel panel-default">
+                <div class="row">
+                <div class="col-sm-6 col-md-6">
+                <div class="panel lux panel-default">
                     <div class="panel-heading">Lux</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="lux" class="luxChart chart-line" 
                         chart-data="luxChart.data"  
                         chart-series="luxChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="luxDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
                 </div>  
-                 <div class="panel panel-default">
+                 <div class="panel drewpoint panel-default">
                     <div class="panel-heading">Drewpoint</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="drewpoint" class="drewpointChart chart-line" 
                         chart-data="drewpointChart.data"  
                         chart-series="drewpointChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="drewpointDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
                 </div>    
-                 <div class="panel panel-default">
+                 <div class="panel humidity panel-default">
                     <div class="panel-heading">Humidity</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="humidity" class="humidityChart chart-line" 
                         chart-data="humidityChart.data"  
                         chart-series="humidityChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="humidityDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
                 </div>     
-                 <div class="panel panel-default">
+                </div><!--col-->
+                <div class="col-sm-6 col-md-6">
+                 <div class="panel temp panel-default">
                     <div class="panel-heading">Temp</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="temp" class="tempChart chart-line" 
                         chart-data="tempChart.data"  
                         chart-series="tempChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="tempDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
                 </div>     
-                 <div class="panel panel-default">
+                 <div class="panel soil panel-default">
                     <div class="panel-heading">Soil</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="soil" class="soilChart chart-line" 
                         chart-data="soilChart.data"  
                         chart-series="soilChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="soilDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
                 </div>        
-                 <div class="panel panel-default">
+                 <div class="panel bar panel-default">
                     <div class="panel-heading">Bar</div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" 
+                        <canvas id="bar" class="barChart chart-line" 
                         chart-data="barChart.data"  
                         chart-series="barChart.series" 
                         chart-options="options" 
-                        chart-dataset-override="datasetOverride" 
+                        chart-dataset-override="barDatasetOverride" 
                         chart-click="onClick"></canvas>
                     </div>
-                </div>                      
-          
+                </div>              
+                </div><!--col-->        
+                </div><!--row-->
             </div>
         </div>
     </div>
