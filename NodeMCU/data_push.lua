@@ -1,9 +1,7 @@
-voltagePin = 4
-waterPin   = 3
 
 function postJson()
     print("POST Measurement")
-    http.post('http://192.168.2.112:6060/measurements',
+    http.post(apiUrl .. '/measurements',
               'Content-Type: application/json\r\n',
               json,
               function(code, data)
@@ -33,7 +31,6 @@ function sendMeasurement()
     gpio.mode(voltagePin,  gpio.OUTPUT)
     gpio.write(voltagePin, gpio.HIGH)
     gpio.mode(waterPin,    gpio.OUTPUT)
-    alt = 222
     tsl2561.init(2, 1)
     print(bme280.init(6, 5, nil, nil, nil, 0)) -- initialize to sleep mode 
     soilS = adc.read(0)  

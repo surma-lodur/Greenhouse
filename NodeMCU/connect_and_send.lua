@@ -31,7 +31,7 @@ function connectAndSend()
         end
     end)
 
-    wifi.sta.config("nDSder", "hasenkot", 1, "1c:c6:3c:a2:94:b0");
+    wifi.sta.config(ssid, password, 1, mac);
     wifi.sta.eventMonStart()
 
     --unregister callback
