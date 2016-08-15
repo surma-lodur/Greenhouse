@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="Greenhouse" <head>
+<meta charset="utf-8">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>Greenhouse</title>
+<script src="https://cdn.jsdelivr.net/g/angularjs@1.5.5(angular.min.js+i18n/angular-locale_de-de.js+angular-touch.min.js+angular-sanitize.min.js+angular-route.min.js+angular-resource.min.js+angular-parse-ext.min.js+angular-messages.min.js+angular-message-format.min.js+angular-loader.min.js+angular-cookies.min.js+angular-aria.min.js+angular-animate.min.js),chart.js@2.0.2,angular.chartjs@1.0.0,jquery@3.1.0,bootstrap@3.3.7(js/bootstrap.min.js+js/bootstrap.js)"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/g/bootstrap@3.3.7(css/bootstrap.min.css),bootstrap.m8tro@3.3.7">
+<script>
+    angular.module('apiService', ['ngResource']).factory('Measurement', ['$resource',
+        function($resource) {
+            return $resource('http://192.168.2.112:6060/measurements', {}, {
+                query: {
+                    method: 'GET',
+                    isArray: true
+                }
+            });
+        }
+    ]);
+    var Greenhouse = angular.module('Greenhouse', ['chart.js', 'apiService']);
+    Greenhouse.controller("HistogramCtrl", function($scope, Measurement) {
+
+        console.log(Measurement.query())
+        $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
+        $scope.series = ['Series A', 'Series B'];
+        $scope.data = [
+            [65, 59, 80, 81, 56, 55, 40],
+            [28, 48, 40, 19, 86, 27, 90]
+        ];
+        $scope.onClick = function(points, evt) {
+            console.log(points, evt);
+        };
+        $scope.datasetOverride = [{
+            yAxisID: 'y-axis-1'
+        }, {
+            yAxisID: 'y-axis-2'
+        }];
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    id: 'y-axis-1',
+                    type: 'linear',
+                    display: true,
+                    position: 'left'
+                }, {
+                    id: 'y-axis-2',
+                    type: 'linear',
+                    display: true,
+                    position: 'right'
+                }]
+            }
+        };
+    });
+</script>
+</head>
+
+<body ng-controller="HistogramCtrl">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm3 col-md2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li><a href="#"><h4>Greenhouse</h4></a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
