@@ -8,10 +8,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/MarcusWalz/sleepy"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/rs/cors"
 )
 
 type Measurement struct {
@@ -82,9 +82,7 @@ func main() {
 
 	api := sleepy.NewAPI()
 	api.AddResource(item, "/measurements")
-	i, err := strconv.ParseInt(args[1], 10, 32)
-	checkErr(err)
-	api.Start(int(i))
+	http.ListenAndServe(args[1], cors.Default().Handler(api.Mux()))
 }
 
 func checkErr(err error) {
