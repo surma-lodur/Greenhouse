@@ -1,0 +1,11 @@
+ssid = "<ssid>"
+password = "<password>"
+mac = "<wlan mac>"
+
+apiUrl = "<api url>"
+voltagePin = 4
+waterPin   = 3
+
+-- Your altitude
+alt = 222
+

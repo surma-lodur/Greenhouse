@@ -1,0 +1,83 @@
+
+.slider .slider-track-high {
+	background: darkgrey;
+}
+
+.slider .slider-track-low {
+	background: darkgrey;
+}
+
+.slider .slider-handle {
+  background-image: linear-gradient(to bottom, grey 0, darkgrey 100%);
+}
+
+.slider{
+  width: 100% !important;
+}
+
+.sidebar {
+  background-color: #000
+}
+
+.panel.lux,
+.panel.drewpoint,
+.panel.humidity,
+.panel.temp,
+.panel.soil,
+.panel.bar {
+  border: none;
+}
+
+.lux .panel-heading {
+  background-color: #e3a21a;
+  border: none;
+}
+
+.panel.lux {
+  background-color: rgba(255, 196, 13, 0.1);
+}
+
+.drewpoint .panel-heading {
+  background-color: #2b5797;
+  border: none;
+}
+
+.panel.drewpoint {
+  background-color: rgba(45, 137, 239, 0.1);
+}
+
+.humidity .panel-heading {
+  background-color: #00a300;
+  border: none;
+}
+
+.panel.humidity {
+  background-color: rgba(153, 180, 51, 0.1);
+}
+
+.temp .panel-heading {
+  background-color: #b91d47;
+  border: none;
+}
+
+.panel.temp {
+  background-color: rgba(238, 17, 17, 0.1);
+}
+
+.soil .panel-heading {
+  background-color: #7e3878;
+  border: none;
+}
+
+.panel.soil {
+  background-color: rgba(159, 0, 167, 0.1);
+}
+
+.bar .panel-heading {
+  background-color: #603cba;
+  border: none;
+}
+
+.panel.bar {
+  background-color: rgba(126, 56, 120, 0.1);
+}

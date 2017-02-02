@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -12,59 +11,21 @@ import (
 	"github.com/MarcusWalz/sleepy"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/cors"
+	"superbösewicht.de/Greenhouse/mapper"
 )
 
-type Measurement struct {
-}
-
-type MeasurementData struct {
-	ID        int     `json:"id"`
-	CreatedAt string  `json:"created_at"`
-	Lux       int     `json:"lux"`
-	Drewpoint float32 `json:"drewpoint"`
-	Humidity  float32 `json:"humidity"`
-	Temp      float32 `json:"temp"`
-	Soil      float32 `json:"soil"`
-	Bar       float32 `json:"bar"`
-}
+type Measurement struct{}
 
 func (item Measurement) Get(request *http.Request) (int, interface{}, http.Header) {
-
-	rows, err := db.Query("SELECT * FROM measurements")
-	checkErr(err)
-
-	items := []MeasurementData{}
-	for rows.Next() {
-		measurement := new(MeasurementData)
-		err = rows.Scan(&measurement.ID, &measurement.CreatedAt, &measurement.Lux, &measurement.Drewpoint, &measurement.Humidity, &measurement.Temp, &measurement.Soil, &measurement.Bar)
-		checkErr(err)
-		items = append(items, *measurement)
-	}
-
-	data := map[string][]MeasurementData{"measurements": items}
+	start_date := request.FormValue("start_date")
+	end_date := request.FormValue("end_date")
+	items := mapper.GetAll(db, start_date, end_date)
+	data := map[string][]mapper.MeasurementData{"measurements": items}
 	return 200, data, http.Header{"Content-type": {"application/json"}}
 }
 
 func (item Measurement) Post(request *http.Request) (int, interface{}, http.Header) {
-	var measurement MeasurementData
-	decoder := json.NewDecoder(request.Body)
-
-	err := decoder.Decode(&measurement)
-
-	if err != nil && err.Error() != "EOF" {
-		panic(err)
-	}
-	fmt.Println(measurement)
-
-	// {"lux":384,"drewpoint":"9.94","humidity":"41.094","temp":"23.95","soil":"0.09","bar":"998.438"}
-	// Prepare statement for inserting data
-	stmt, err := db.Prepare("INSERT INTO measurements (lux, drewpoint, humidity, temp, soil, bar) VALUES( ?, ?, ?, ?, ?, ? )") // ? = placeholder
-	checkErr(err)
-	defer stmt.Close() // Close the statement when we leave main() / the program terminates
-
-	rows, err := stmt.Query(measurement.Lux, measurement.Drewpoint, measurement.Humidity, measurement.Temp, measurement.Soil, measurement.Bar)
-
-	defer rows.Close()
+	err, measurement := mapper.CreateMeasurement(db, request.Body)
 	if err != nil {
 		log.Fatal(err)
 		return 422, measurement, http.Header{"Content-type": {"application/json"}}
@@ -74,19 +35,35 @@ func (item Measurement) Post(request *http.Request) (int, interface{}, http.Head
 	}
 }
 
+type MeasurementDateRange struct{}
+
+func (date_range MeasurementDateRange) Get(request *http.Request) (int, interface{}, http.Header) {
+	err, data := mapper.GetDateRange(db)
+	checkErr(err)
+	return 200, data, http.Header{"Content-type": {"application/json"}}
+}
+
 func main() {
 	initDB()
 	flag.Parse()
 	args := flag.Args()
 	item := new(Measurement)
-
+	date_range := new(MeasurementDateRange)
 	api := sleepy.NewAPI()
 	api.AddResource(item, "/measurements")
-	http.ListenAndServe(args[1], cors.Default().Handler(api.Mux()))
+	api.AddResource(date_range, "/date-range")
+	fmt.Println("Start API")
+
+	chttp := api.Mux()
+	chttp.Handle("/", http.FileServer(http.Dir("./public")))
+	cors := cors.Default().Handler(chttp)
+
+	http.ListenAndServe(args[1], cors)
 }
 
 func checkErr(err error) {
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 }
@@ -98,12 +75,11 @@ func initDB() {
 		fmt.Println("no DB Login and Port defined! \n\t user:password 8080")
 		os.Exit(1)
 	}
+	fmt.Println("Connect to DB")
 	var err error
 	db, err = sql.Open("mysql", args[0]+"@/greenhouse")
 	checkErr(err)
-	result, err := db.Exec(createsql)
-	fmt.Println(result.LastInsertId())
-	fmt.Println(result.RowsAffected())
+	_, err = db.Exec(createsql)
 	checkErr(err)
 }
 

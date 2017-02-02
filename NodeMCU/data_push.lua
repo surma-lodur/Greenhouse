@@ -16,15 +16,18 @@ end
 
 function goingSleep()
     print("Register Sleep Timer")
-    tmr.register(1, 5000, tmr.ALARM_SINGLE, function() 
+    sleep_timer = tmr.create()
+    sleep_timer:register(5000, tmr.ALARM_SINGLE, function() 
         print("Disable watering")
         gpio.write(waterPin, gpio.LOW)
         print("Going to sleep")
+        wifi.sta.disconnect()
         -- 3600000000 one hour
         -- 59999999 one minute
-        node.dsleep(3600000000)
+        -- 4294967295 
+        node.dsleep(4294967290)
     end)    
-    tmr.start(1)
+    sleep_timer:start()
 end
 
 function sendMeasurement()

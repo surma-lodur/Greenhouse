@@ -1,16 +1,9 @@
-ssid = "<your SSID>"
-password = "<your Password>"
-mac = "<mac from Access Point>"
+pcall(dofile, "config.lua")
 
-apiUrl = "http://192.168.2.112:6060"
-voltagePin = 4
-waterPin   = 3
-
--- Your altitude
-alt = 222
-
-tmr.register(0, 8000, tmr.ALARM_SINGLE, function() 
-    uart.setup(0, 9600, 8, uart.PARITY_NONE, uart.STOPBITS_1, 1)
+uart.setup(0,115200,8,0,1)
+start_timer = tmr.create()
+start_timer:register(8000, tmr.ALARM_SINGLE, function() 
+    uart.setup(0, 115200, 8, uart.PARITY_NONE, uart.STOPBITS_1, 1)
     majorVer, minorVer, devVer, chipid, flashid, flashsize, flashmode, flashspeed = node.info()
     print("NodeMCU "..majorVer.."."..minorVer.."."..devVer)
     print("Run init.lua")
@@ -23,4 +16,4 @@ tmr.register(0, 8000, tmr.ALARM_SINGLE, function()
     end
 end
 )
-tmr.start(0)
+start_timer:start()
