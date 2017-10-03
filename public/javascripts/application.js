@@ -35,7 +35,14 @@ Greenhouse.directive('ngDatePicker', function () {
         //@ reads the attribute value, = provides two-way binding, & works with functions
         //scope: {title: '@'},
         //DOM manipulation
+        //scope: { onChange: '&'},
+        //scope: {startDate: '=startDate', endDate: '=endDate', fetchMeasurements: '&fetchMeasurements'},
+        scope: false,
         link: function ($scope, element, attrs) { 
+          jQuery(element).datepicker().on('changeDate', function(e) {
+            $scope.$parent[jQuery(element).attr('ng-model')] = element.val();
+            $scope.fetchMeasurements();
+          });
         } 
     }
 }); 
@@ -50,23 +57,26 @@ Greenhouse.controller("HistogramCtrl", function($scope, Measurement, DateRange) 
   $scope.endDate   = moment().format('L');
 
   $scope.dateRange = DateRange.query({}, function() {
-    console.log($scope.dateRange);
-    console.log($scope.startDate);
-
-    $scope.measurementData = Measurement.query({
-        start_date: moment($scope.startDate).format($scope.dateFormatApi),
-        end_date:   moment($scope.endDate).format($scope.dateFormatApi)
-      }, function() {
-      $scope.enableHistogram();
-    });
+    $scope.fetchMeasurements();
   });
 
+  $scope.fetchMeasurements = function(){
+    $scope.measurementData = Measurement.query({
+      start_date: moment($scope.startDate).format($scope.dateFormatApi),
+      end_date:   moment($scope.endDate).format($scope.dateFormatApi)
+    }, function() {
+      $scope.enableHistogram();
+    });
+  };
   $scope.measurementToChartData = function(query) {
     $scope.luxChart       = {series: 'Lux',       data: [[]]};
     $scope.drewpointChart = {series: 'Drewpoint', data: [[]]};
     $scope.humidityChart  = {series: 'Humidity',  data: [[]]};
     $scope.tempChart      = {series: 'Temp',      data: [[]]};
-    $scope.soilChart      = {series: 'Soil',      data: [[]]};
+    $scope.soilChart1     = {series: 'Soil1',     data: [[]]};
+    $scope.soilChart2     = {series: 'Soil2',     data: [[]]};
+    $scope.soilChart3     = {series: 'Soil3',     data: [[]]};
+    $scope.soilChart4     = {series: 'Soil4',     data: [[]]};
     $scope.barChart       = {series: 'Bar',       data: [[]]};
 
     jQuery.each(query.measurements, function(index, measurement) {
@@ -86,9 +96,21 @@ Greenhouse.controller("HistogramCtrl", function($scope, Measurement, DateRange) 
         x: measurement.created_at,
         y: measurement.temp
       });
-      $scope.soilChart.data[0].push({
+      $scope.soilChart1.data[0].push({
         x: measurement.created_at,
-        y: measurement.soil
+        y: measurement.soil1
+      });
+      $scope.soilChart2.data[0].push({
+        x: measurement.created_at,
+        y: measurement.soil2
+      });
+      $scope.soilChart3.data[0].push({
+        x: measurement.created_at,
+        y: measurement.soil3
+      });
+      $scope.soilChart4.data[0].push({
+        x: measurement.created_at,
+        y: measurement.soil4
       });
       $scope.barChart.data[0].push({
         x: measurement.created_at,

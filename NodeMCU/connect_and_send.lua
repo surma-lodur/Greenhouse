@@ -6,12 +6,9 @@ function connectAndSend()
 
     pcall(dofile, "data_push.lua")
     --register callback
-    wifi.sta.eventMonReg(wifi.STA_IDLE,       function() print("STATION_IDLE") end)
-    wifi.sta.eventMonReg(wifi.STA_CONNECTING, function() print("STATION_CONNECTING") end)
-    wifi.sta.eventMonReg(wifi.STA_WRONGPWD,   function() print("STATION_WRONG_PASSWORD") end)
-    wifi.sta.eventMonReg(wifi.STA_APNOTFOUND, function() print("STATION_NO_AP_FOUND") end)
-    wifi.sta.eventMonReg(wifi.STA_FAIL,       function() print("STATION_CONNECT_FAIL") end)
-    wifi.sta.eventMonReg(wifi.STA_GOTIP, function()
+    wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function() print("STATION_CONNECTING") end)
+    wifi.eventmon.register(wifi.eventmon.STA_DISCONNECTED,       function() print("STATION_CONNECT_FAIL") end)
+    wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function()
         print("STATION_GOT_IP") 
         print(wifi.sta.getip())
         ok, val = pcall(sendMeasurement)
@@ -23,18 +20,23 @@ function connectAndSend()
     end)
 
     --register callback: use previous state
-    wifi.sta.eventMonReg(wifi.STA_CONNECTING, function(previous_State)
-        if(previous_State==wifi.STA_GOTIP) then 
-            print("Station lost connection with access point\n\tAttempting to reconnect...")
-        else
-            print("STATION_CONNECTING")
-        end
-    end)
-
-    wifi.sta.config(ssid, password, 1, mac);
-    wifi.sta.eventMonStart()
-
+    -- wifi.sta.eventMonReg(wifi.STA_CONNECTING, function(previous_State)
+    --    if(previous_State==wifi.STA_GOTIP) then 
+    --        print("Station lost connection with access point\n\tAttempting to reconnect...")
+    --    else
+    --        print("STATION_CONNECTING")
+    --    end
+    --end)
+    station_cfg={}
+    station_cfg.ssid  = ssid;
+    station_cfg.pwd   = password;
+    station_cfg.auto  = true;
+    station_cfg.bssid = mac;
+    
+    wifi.sta.config(station_cfg);
+    --wifi.sta.eventMonStart()
+    --wifi.sta.connect();
     --unregister callback
-    wifi.sta.eventMonReg(wifi.STA_IDLE)
+    --wifi.sta.eventMonReg(wifi.STA_IDLE)
     return
 end

@@ -10,7 +10,7 @@ function postJson()
                 else
                     print(code, data)
                 end
-                goingSleep()
+                -- goingSleep()
             end)
 end
 
@@ -32,15 +32,49 @@ end
 
 function sendMeasurement()
     gpio.mode(voltagePin,  gpio.OUTPUT)
-    gpio.write(voltagePin, gpio.HIGH)
+    gpio.mode(dmux1Pin,    gpio.OUTPUT)
+    gpio.mode(dmux2Pin,    gpio.OUTPUT)
     gpio.mode(waterPin,    gpio.OUTPUT)
+    
+    gpio.write(voltagePin, gpio.HIGH)
     tsl2561.init(2, 1)
     print(bme280.init(6, 5, nil, nil, nil, 0)) -- initialize to sleep mode 
-    soilS = adc.read(0)  
-    print(soilS)
-    if soilS < 100 then
+    
+    watering = false;
+    gpio.write(dmux1Pin, gpio.LOW)
+    gpio.write(dmux2Pin, gpio.LOW)    
+    tmr.delay(10000)
+    soilS1 = adc.read(0)      
+    
+    gpio.write(dmux1Pin, gpio.HIGH) 
+    tmr.delay(10000)
+    soilS2 = adc.read(0)    
+    
+    gpio.write(dmux1Pin, gpio.LOW)
+    gpio.write(dmux2Pin, gpio.HIGH) 
+    tmr.delay(10000)
+    soilS3 = adc.read(0)    
+    
+    gpio.write(dmux1Pin, gpio.HIGH)
+    gpio.write(dmux2Pin, gpio.HIGH) 
+    tmr.delay(10000)
+    soilS4 = adc.read(0)    
+
+    --print("soils")
+    --print(soilS1)
+    --print(soilS2)
+    --print(soilS3)
+    --print(soilS4)
+    if soilS1 < 100 then
         print("Enable watering")
+        watering = true
         gpio.write(waterPin, gpio.HIGH)
+        tmr.create():alarm(5000, tmr.ALARM_SINGLE, function()        
+            print("Disable watering")
+            gpio.write(waterPin, gpio.LOW)
+            print("Switchoff Sensors")
+            gpio.write(voltagePin, gpio.LOW)
+        end)
     end    
     
     bme280.startreadout(0, function ()
@@ -50,22 +84,27 @@ function sendMeasurement()
         QNH = bme280.qfe2qnh(P, 222)
         D = bme280.dewpoint(H, T)
 
-        ok, json = pcall(cjson.encode, {
+        ok, json = pcall(sjson.encode, {
             lux=tsl2561.getlux(),
             bar=(P/1000.0),
             temp=(T/100.0),
             humidity=(H/1000.0),
             drewpoint=(D/100.0),
-            soil=(soilS/100.0)          
+            soil1=(soilS1/100.0),
+            soil2=(soilS2/100.0), 
+            soil3=(soilS3/100.0),  
+            soil4=(soilS4/100.0)             
         })
+        print(json)
         if ok then   
-            postJson()
+            pcall(postJson)
+            if not watering then            
+                print("Disable watering")
+                gpio.write(waterPin, gpio.LOW)
+                print("Switchoff Sensors")
+                gpio.write(voltagePin, gpio.LOW)
             --goingSleep()
-        else
-        print("Disable watering")
-            gpio.write(waterPin, gpio.LOW)
+            end
         end
-        print("Switchoff Sensors")
-        gpio.write(voltagePin, gpio.LOW)
     end)
 end

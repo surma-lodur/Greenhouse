@@ -1,122 +1,163 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="Greenhouse">
-<head>
-<meta charset="utf-8">
-<meta content="IE=edge" http-equiv="X-UA-Compatible">
-<meta content="width=device-width, initial-scale=1" name="viewport">
-<title>Greenhouse</title>
-<script src="https://cdn.jsdelivr.net/g/angularjs@1.5.5(angular.min.js+i18n/angular-locale_de-de.js+angular-touch.min.js+angular-sanitize.min.js+angular-route.min.js+angular-resource.min.js+angular-parse-ext.min.js+angular-messages.min.js+angular-message-format.min.js+angular-loader.min.js+angular-cookies.min.js+angular-aria.min.js+angular-animate.min.js),momentjs@2.14.1(moment-with-locales.min.js),chart.js@2.0.2,angular.chartjs@1.0.0,jquery@3.1.0,bootstrap@3.3.7(js/bootstrap.min.js+js/bootstrap.js),bootstrap-slider@9.2.0,bootstrap.datepicker-fork@1.3.0(js/bootstrap-datepicker.min.js+js/locales/bootstrap-datepicker.de.js)"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/g/bootstrap@3.3.7(css/bootstrap.min.css),bootstrap.m8tro@3.3.7,bootstrap-slider@9.2.0(css/bootstrap-slider.min.css),bootstrap.datepicker-fork@1.3.0(css/datepicker3.min.css)">
 
-<script src="javascripts/application.js"></script>
-<link rel="stylesheet" href="css/application.css">
-</head>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Greenhouse</title>
+    <script src="https://cdn.jsdelivr.net/g/angularjs@1.5.5(angular.min.js+i18n/angular-locale_de-de.js+angular-touch.min.js+angular-sanitize.min.js+angular-route.min.js+angular-resource.min.js+angular-parse-ext.min.js+angular-messages.min.js+angular-message-format.min.js+angular-loader.min.js+angular-cookies.min.js+angular-aria.min.js+angular-animate.min.js),momentjs@2.14.1(moment-with-locales.min.js),chart.js@2.0.2,angular.chartjs@1.0.0,jquery@3.1.0,bootstrap@3.3.7(js/bootstrap.min.js+js/bootstrap.js),bootstrap-slider@9.2.0,bootstrap.datepicker-fork@1.3.0(js/bootstrap-datepicker.min.js+js/locales/bootstrap-datepicker.de.js)"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/g/bootstrap@3.3.7(css/bootstrap.min.css),bootstrap.m8tro@3.3.7,bootstrap-slider@9.2.0(css/bootstrap-slider.min.css),bootstrap.datepicker-fork@1.3.0(css/datepicker3.min.css)">
 
-<body ng-controller="HistogramCtrl">
+    <script src="javascripts/application.js"></script>
+    <link rel="stylesheet" href="css/application.css">
+  </head>
+
+  <body ng-controller="HistogramCtrl">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-3 col-md-2 sidebar">
-                <ul class="nav nav-sidebar">
-                    <li><a href="#">Greenhouse</a></li>
-                </ul>
-            </div>
-
-            <span ng-if="histogram">
-            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                <div class="row">
-                  <div class="col-md-2">
-                    <input type="text" 
-                      id="start-date" 
-                      ng-model="startDate"
-                      ng-date-picker="startDate"
-                      class="form-control"/>
-                  </div>
-                  <div class="col-md-8">
-                    <input id="dateSlider" type="text" ng-slider />
-                  </div>
-                  <div class="col-md-2">
-                    <input type="text" 
-                      id="end-date"
-                      ng-model="endDate"
-                      ng-date-picker="endDate"
-                      class="form-control"/>
-                  </div>
-                </div>
-                <div class="row">
-                <div class="col-sm-6 col-md-6">
-                <div class="panel lux panel-default">
-                    <div class="panel-heading">Lux</div>
-                    <div class="panel-body">
-                        <canvas id="lux" class="luxChart chart-line" 
-                        chart-data="luxChart.data"  
-                        chart-series="luxChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="luxDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>  
-                 <div class="panel drewpoint panel-default">
-                    <div class="panel-heading">Drewpoint</div>
-                    <div class="panel-body">
-                        <canvas id="drewpoint" class="drewpointChart chart-line" 
-                        chart-data="drewpointChart.data"  
-                        chart-series="drewpointChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="drewpointDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>    
-                 <div class="panel humidity panel-default">
-                    <div class="panel-heading">Humidity</div>
-                    <div class="panel-body">
-                        <canvas id="humidity" class="humidityChart chart-line" 
-                        chart-data="humidityChart.data"  
-                        chart-series="humidityChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="humidityDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>     
-                </div><!--col-->
-                <div class="col-sm-6 col-md-6">
-                 <div class="panel temp panel-default">
-                    <div class="panel-heading">Temp</div>
-                    <div class="panel-body">
-                        <canvas id="temp" class="tempChart chart-line" 
-                        chart-data="tempChart.data"  
-                        chart-series="tempChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="tempDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>     
-                 <div class="panel soil panel-default">
-                    <div class="panel-heading">Soil</div>
-                    <div class="panel-body">
-                        <canvas id="soil" class="soilChart chart-line" 
-                        chart-data="soilChart.data"  
-                        chart-series="soilChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="soilDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>        
-                 <div class="panel bar panel-default">
-                    <div class="panel-heading">Bar</div>
-                    <div class="panel-body">
-                        <canvas id="bar" class="barChart chart-line" 
-                        chart-data="barChart.data"  
-                        chart-series="barChart.series" 
-                        chart-options="options" 
-                        chart-dataset-override="barDatasetOverride" 
-                        chart-click="onClick"></canvas>
-                    </div>
-                </div>              
-                </div><!--col-->        
-                </div><!--row-->
-            </div>
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li><a href="#">Greenhouse</a></li>
+          </ul>
         </div>
+
+        <span ng-if="histogram">
+          <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+            <div class="row">
+              <div class="col-md-2">
+                <input type="text" 
+                       id="start-date" 
+                       ng-model="startDate"
+                       ng-date-picker
+                       class="form-control"/>
+              </div>
+              <div class="col-md-8">
+                <!--<input id="dateSlider" type="text" ng-slider />-->
+              </div>
+              <div class="col-md-2">
+                <input type="text" 
+                       id="end-date"
+                       ng-model="endDate"
+                       ng-date-picker
+                       class="form-control"/>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-md-6">
+                <div class="panel soil panel-default">
+                  <div class="panel-heading">Soil 1</div>
+                  <div class="panel-body">
+                    <canvas id="soil1" class="soilChart chart-line" 
+                                       chart-data="soilChart1.data"  
+                                       chart-series="soilChart1.series" 
+                                       chart-options="options" 
+                                       chart-dataset-override="soilDatasetOverride" 
+                                       chart-click="onClick"></canvas>
+                  </div>
+                </div>        
+                <div class="panel soil panel-default">
+                  <div class="panel-heading">Soil 2</div>
+                  <div class="panel-body">
+                    <canvas id="soil2" class="soilChart chart-line" 
+                                       chart-data="soilChart2.data"  
+                                       chart-series="soilChart2.series" 
+                                       chart-options="options" 
+                                       chart-dataset-override="soilDatasetOverride" 
+                                       chart-click="onClick"></canvas>
+                  </div>
+                </div>      
+              </div>
+              <div class="col-sm-6 col-md-6">
+                <div class="panel soil panel-default">
+                  <div class="panel-heading">Soil 3</div>
+                  <div class="panel-body">
+                    <canvas id="soil3" class="soilChart chart-line" 
+                                       chart-data="soilChart3.data"  
+                                       chart-series="soilChart3.series" 
+                                       chart-options="options" 
+                                       chart-dataset-override="soilDatasetOverride" 
+                                       chart-click="onClick"></canvas>
+                  </div>
+                </div>    
+                <div class="panel soil panel-default">
+                  <div class="panel-heading">Soil 4</div>
+                  <div class="panel-body">
+                    <canvas id="soil4" class="soilChart chart-line" 
+                                       chart-data="soilChart4.data"  
+                                       chart-series="soilChart4.series" 
+                                       chart-options="options" 
+                                       chart-dataset-override="soilDatasetOverride" 
+                                       chart-click="onClick"></canvas>
+                  </div>
+                </div>    
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 col-md-6">
+                <div class="panel bar panel-default">
+                  <div class="panel-heading">Bar</div>
+                  <div class="panel-body">
+                    <canvas id="bar" class="barChart chart-line" 
+                                     chart-data="barChart.data"  
+                                     chart-series="barChart.series" 
+                                     chart-options="options" 
+                                     chart-dataset-override="barDatasetOverride" 
+                                     chart-click="onClick"></canvas>
+                  </div>
+                </div>  
+                <div class="panel drewpoint panel-default">
+                  <div class="panel-heading">Drewpoint</div>
+                  <div class="panel-body">
+                    <canvas id="drewpoint" class="drewpointChart chart-line" 
+                                           chart-data="drewpointChart.data"  
+                                           chart-series="drewpointChart.series" 
+                                           chart-options="options" 
+                                           chart-dataset-override="drewpointDatasetOverride" 
+                                           chart-click="onClick"></canvas>
+                  </div>
+                </div>    
+              </div>
+              <div class="col-sm-6 col-md-6">
+                <div class="panel humidity panel-default">
+                  <div class="panel-heading">Humidity</div>
+                  <div class="panel-body">
+                    <canvas id="humidity" class="humidityChart chart-line" 
+                                          chart-data="humidityChart.data"  
+                                          chart-series="humidityChart.series" 
+                                          chart-options="options" 
+                                          chart-dataset-override="humidityDatasetOverride" 
+                                          chart-click="onClick"></canvas>
+                  </div>
+                </div>     
+                <div class="panel temp panel-default">
+                  <div class="panel-heading">Temp</div>
+                  <div class="panel-body">
+                    <canvas id="temp" class="tempChart chart-line" 
+                                      chart-data="tempChart.data"  
+                                      chart-series="tempChart.series" 
+                                      chart-options="options" 
+                                      chart-dataset-override="tempDatasetOverride" 
+                                      chart-click="onClick"></canvas>
+                  </div>
+                </div>     
+                <!--<div class="panel lux panel-default">
+                  <div class="panel-heading">Lux</div>
+                  <div class="panel-body">
+                  <canvas id="lux" class="luxChart chart-line" 
+                  chart-data="luxChart.data"  
+                  chart-series="luxChart.series" 
+                  chart-options="options" 
+                  chart-dataset-override="luxDatasetOverride" 
+                  chart-click="onClick"></canvas>
+                  </div>
+                  </div>  -->
+
+              </div><!--col-->        
+            </div><!--row-->
+          </div>
+      </div>
     </div>
-</body>
+  </body>
 
 </html>

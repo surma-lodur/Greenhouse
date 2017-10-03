@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 )
 
@@ -15,7 +16,10 @@ type MeasurementData struct {
 	Drewpoint float32 `json:"drewpoint"`
 	Humidity  float32 `json:"humidity"`
 	Temp      float32 `json:"temp"`
-	Soil      float32 `json:"soil"`
+	Soil1     float32 `json:"soil1"`
+	Soil2     float32 `json:"soil2"`
+	Soil3     float32 `json:"soil3"`
+	Soil4     float32 `json:"soil4"`
 	Bar       float32 `json:"bar"`
 }
 
@@ -34,14 +38,17 @@ func GetAll(db *sql.DB, start_date string, end_date string) (items []Measurement
 		date = date.Add(24 * time.Second)
 		wheres = append(wheres, fmt.Sprint("created_at <= '", date.Format("2006-01-02 15:04:05"), "'"))
 	}
-	fmt.Println(wheres)
+	if len(wheres) > 0 {
+		query = query + " WHERE " + strings.Join(wheres, " AND ")
+	}
+	fmt.Println(query)
 	rows, err := db.Query(query)
 	checkErr(err)
 
 	items = []MeasurementData{}
 	for rows.Next() {
 		measurement := new(MeasurementData)
-		err = rows.Scan(&measurement.ID, &measurement.CreatedAt, &measurement.Lux, &measurement.Drewpoint, &measurement.Humidity, &measurement.Temp, &measurement.Soil, &measurement.Bar)
+		err = rows.Scan(&measurement.ID, &measurement.CreatedAt, &measurement.Lux, &measurement.Drewpoint, &measurement.Humidity, &measurement.Temp, &measurement.Soil1, &measurement.Soil2, &measurement.Soil3, &measurement.Soil4, &measurement.Bar)
 		checkErr(err)
 		items = append(items, *measurement)
 	}
@@ -55,12 +62,12 @@ func CreateMeasurement(db *sql.DB, json_data io.Reader) (err error, measurement 
 	fmt.Println(measurement)
 
 	// Prepare statement for inserting data
-	stmt, err := db.Prepare("INSERT INTO measurements (lux, drewpoint, humidity, temp, soil, bar) VALUES( ?, ?, ?, ?, ?, ? )")
+	stmt, err := db.Prepare("INSERT INTO measurements (lux, drewpoint, humidity, temp, soil1, soil2, soil3, soil4, bar) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ? )")
 	checkErr(err)
 	// Close the statement when we leave main() / the program terminates
 	defer stmt.Close()
 
-	_, err = stmt.Query(measurement.Lux, measurement.Drewpoint, measurement.Humidity, measurement.Temp, measurement.Soil, measurement.Bar)
+	_, err = stmt.Query(measurement.Lux, measurement.Drewpoint, measurement.Humidity, measurement.Temp, measurement.Soil1, measurement.Bar)
 	return
 }
 

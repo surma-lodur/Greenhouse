@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -79,11 +80,19 @@ func initDB() {
 	var err error
 	db, err = sql.Open("mysql", args[0]+"@/greenhouse")
 	checkErr(err)
-	_, err = db.Exec(createsql)
-	checkErr(err)
+	migrateDb()
 }
 
 var db *sql.DB
 
+func migrateDb() {
+	bytes, err := ioutil.ReadFile("migrations/1_initialize.up.sql")
+	checkErr(err)
+	_, err = db.Exec(string(bytes))
+
+	bytes, err = ioutil.ReadFile("migrations/2_add_soil.up.sql")
+	_, err = db.Exec(string(bytes))
+
+}
+
 // {"lux":384,"drewpoint":"9.94","humidity":"41.094","temp":"23.95","soil":"0.09","bar":"998.438"}
-const createsql string = "CREATE TABLE IF NOT EXISTS measurements (id INT(11) NOT NULL AUTO_INCREMENT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, lux INT, drewpoint DECIMAL(8,2), humidity DECIMAL(8,3), temp DECIMAL(8,2), soil DECIMAL(8,2), bar DECIMAL(8,3), PRIMARY KEY (id)) ENGINE=InnoDB"
